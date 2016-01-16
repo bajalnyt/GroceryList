@@ -1,12 +1,14 @@
 package com.mohbajal.grocerylist;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mohbajal.grocerylist.database.dao.Store;
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private StoreDataSource datasource;
 
+    String[] storeContextMenuItems = new String[] {"Delete", "Rename"};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,21 +60,64 @@ public class MainActivity extends AppCompatActivity {
 
         storesList.setAdapter(adapter);
 
+        registerForContextMenu(storesList);
 
+    }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId()==R.id.main_list_view) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
+            menu.setHeaderTitle(listItems.get(info.position).getStoreName());
+
+            for (int i = 0; i< storeContextMenuItems.length; i++) {
+                menu.add(Menu.NONE, i, i, storeContextMenuItems[i]);
+            }
+        }
+
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        int menuItemIndex = item.getItemId();
+
+        String menuItemName = storeContextMenuItems[menuItemIndex];
+        String listItemName = listItems.get(info.position).getStoreName();
+
+        if("Delete".equalsIgnoreCase(menuItemName)) {
+            Store store = (Store) storesList.getAdapter().getItem(info.position);
+            datasource.deleteStore(store);
+
+            adapter.remove(store);
+            Toast.makeText(MainActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
+        } else if("Rename".equalsIgnoreCase(menuItemName)){
+            Store store = (Store) storesList.getAdapter().getItem(info.position);
+            store.setStoreName("Updated");
+            datasource.updateStore(store);
+
+            adapter.notifyDataSetChanged();
+            Toast.makeText(MainActivity.this, "listItemName is renamed", Toast.LENGTH_SHORT).show();
+        }
+        return true;
     }
 
     @OnItemClick(R.id.main_list_view)
     public void mainListItemClicked(int position){
-        Toast.makeText(MainActivity.this, "Position " + position  , Toast.LENGTH_SHORT).show();
+        Store store = (Store) storesList.getAdapter().getItem(position);
+
+        Intent myIntent = new Intent(this, ItemsListActivity.class);
+        myIntent.putExtra("key", store.getId()); //Optional parameters
+        this.startActivity(myIntent);
+
     }
 
     @OnClick(R.id.main_btn_add)
     public void mainAddButtonClicked(){
 
-        String newItem = storeName.getText().toString();
+        String newStore = storeName.getText().toString();
 
-        if(!validateListItemName(newItem)){
+        if(!validateListItemName(newStore)){
             return;
         }
 
@@ -78,12 +126,12 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<Store> adapter = (ArrayAdapter<Store>) storesList.getAdapter();
         Store store = null;
 
-        store = datasource.createStore(newItem);
+        store = datasource.createStore(newStore);
         adapter.add(store);
 
         adapter.notifyDataSetChanged();
 
-        Toast.makeText(MainActivity.this, "Shopping List "+newItem + " added successfully!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "Shopping List "+newStore + " added successfully!", Toast.LENGTH_SHORT).show();
 
     }
 

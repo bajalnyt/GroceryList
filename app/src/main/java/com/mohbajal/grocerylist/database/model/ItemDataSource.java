@@ -1,8 +1,5 @@
 package com.mohbajal.grocerylist.database.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,17 +7,21 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.mohbajal.grocerylist.database.MySQLiteHelper;
+import com.mohbajal.grocerylist.database.dao.Item;
 import com.mohbajal.grocerylist.database.dao.Store;
 
-public class StoreDataSource {
+import java.util.ArrayList;
+import java.util.List;
+
+public class ItemDataSource {
 
     // Database fields
     private SQLiteDatabase database;
     private MySQLiteHelper dbHelper;
     private String[] allColumns = { MySQLiteHelper.COLUMN_ID,
-            MySQLiteHelper.COLUMN_STORE_NAME };
+            MySQLiteHelper.COLUMN_ITEM_NAME };
 
-    public StoreDataSource(Context context) {
+    public ItemDataSource(Context context) {
         dbHelper = new MySQLiteHelper(context);
     }
 
@@ -32,28 +33,28 @@ public class StoreDataSource {
         dbHelper.close();
     }
 
-    public Store createStore(String Store) {
+    public Item createItem(String item) {
         ContentValues values = new ContentValues();
-        values.put(MySQLiteHelper.COLUMN_STORE_NAME, Store);
-        long insertId = database.insert(MySQLiteHelper.TABLE_STORE, null,
+        values.put(MySQLiteHelper.COLUMN_ITEM_NAME, item);
+        long insertId = database.insert(MySQLiteHelper.TABLE_ITEM, null,
                 values);
-        Cursor cursor = database.query(MySQLiteHelper.TABLE_STORE,
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_ITEM,
                 allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null,
                 null, null, null);
         cursor.moveToFirst();
-        Store newStore = cursorToStore(cursor);
+        Item newItem = cursorToStore(cursor);
         cursor.close();
-        return newStore;
+        return newItem;
     }
 
-    public void deleteStore(Store Store) {
-        long id = Store.getId();
-        System.out.println("Store deleted with id: " + id);
-        database.delete(MySQLiteHelper.TABLE_STORE, MySQLiteHelper.COLUMN_ID
+    public void deleteStore(Item item) {
+        long id = item.getId();
+        System.out.println("Item deleted with id: " + id);
+        database.delete(MySQLiteHelper.TABLE_ITEM, MySQLiteHelper.COLUMN_ID
                 + " = " + id, null);
     }
 
-    public void updateStore(Store store) {
+    /*public void updateStore(Item item) {
         long id = store.getId();
         ContentValues args = new ContentValues();
         args.put(MySQLiteHelper.COLUMN_STORE_NAME , store.getStoreName());
@@ -61,29 +62,29 @@ public class StoreDataSource {
         database.update(MySQLiteHelper.TABLE_STORE, args,
                  MySQLiteHelper.COLUMN_ID +"=" + id, null );
 
-    }
+    }*/
 
-    public List<Store> getAllStores() {
-        List<Store> Stores = new ArrayList<Store>();
+    public List<Item> getAllItems() {
+        List<Item> items = new ArrayList<>();
 
-        Cursor cursor = database.query(MySQLiteHelper.TABLE_STORE,
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_ITEM,
                 allColumns, null, null, null, null, null);
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            Store Store = cursorToStore(cursor);
-            Stores.add(Store);
+            Item item = cursorToStore(cursor);
+            items.add(item);
             cursor.moveToNext();
         }
         // make sure to close the cursor
         cursor.close();
-        return Stores;
+        return items;
     }
 
-    private Store cursorToStore(Cursor cursor) {
-        Store Store = new Store();
-        Store.setId(cursor.getLong(0));
-        Store.setStoreName(cursor.getString(1));
-        return Store;
+    private Item cursorToStore(Cursor cursor) {
+        Item item = new Item();
+        item.setId(cursor.getLong(0));
+        item.setItemName(cursor.getString(1));
+        return item;
     }
 }

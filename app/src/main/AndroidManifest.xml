@@ -21,6 +21,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".ItemsListActivity"
+            android:label="ItemsList"
+            />
+
     </application>
 
 

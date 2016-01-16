@@ -8,16 +8,25 @@ import android.util.Log;
 public class MySQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_STORE = "store";
+    public static final String TABLE_ITEM = "item";
+
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_STORE_NAME = "store_name";
+
+    public static final String COLUMN_ITEM_NAME = "item_name";
 
     private static final String DATABASE_NAME = "store.db";
     private static final int DATABASE_VERSION = 1;
 
     // Database creation sql statement
-    private static final String DATABASE_CREATE = "create table "
+    private static final String DATABASE_CREATE_STORE_TABLE = "create table "
             + TABLE_STORE + "(" + COLUMN_ID
             + " integer primary key autoincrement, " + COLUMN_STORE_NAME
+            + " text not null);";
+
+    private static final String DATABASE_CREATE_ITEM_TABLE = "create table "
+            + TABLE_ITEM + "(" + COLUMN_ID
+            + " integer primary key autoincrement, " + COLUMN_ITEM_NAME
             + " text not null);";
 
     public MySQLiteHelper(Context context) {
@@ -26,7 +35,8 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-        database.execSQL(DATABASE_CREATE);
+        database.execSQL(DATABASE_CREATE_STORE_TABLE);
+        database.execSQL(DATABASE_CREATE_ITEM_TABLE);
     }
 
     @Override
@@ -35,6 +45,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_STORE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ITEM);
         onCreate(db);
     }
 
