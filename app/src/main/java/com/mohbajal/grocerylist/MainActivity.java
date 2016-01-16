@@ -12,6 +12,7 @@ import android.view.ContextMenu;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,7 +34,6 @@ import butterknife.OnItemClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button addListItemButton;
     @Bind(R.id.main_listname) EditText storeName;
     @Bind(R.id.main_list_view) ListView storesList;
 
@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         datasource = new StoreDataSource(this);
         datasource.open();
@@ -85,14 +87,14 @@ public class MainActivity extends AppCompatActivity {
         String menuItemName = storeContextMenuItems[menuItemIndex];
         String listItemName = listItems.get(info.position).getStoreName();
 
+        Store store = (Store) storesList.getAdapter().getItem(info.position);
+
         if("Delete".equalsIgnoreCase(menuItemName)) {
-            Store store = (Store) storesList.getAdapter().getItem(info.position);
             datasource.deleteStore(store);
 
             adapter.remove(store);
             Toast.makeText(MainActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
         } else if("Rename".equalsIgnoreCase(menuItemName)){
-            Store store = (Store) storesList.getAdapter().getItem(info.position);
             store.setStoreName("Updated");
             datasource.updateStore(store);
 

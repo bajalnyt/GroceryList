@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.mohbajal.grocerylist.database.MySQLiteHelper;
 import com.mohbajal.grocerylist.database.dao.Item;
-import com.mohbajal.grocerylist.database.dao.Store;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,36 +32,36 @@ public class ItemDataSource {
         dbHelper.close();
     }
 
-    public Item createItem(String item) {
+    public Item createItem(String item, long storeid) {
         ContentValues values = new ContentValues();
         values.put(MySQLiteHelper.COLUMN_ITEM_NAME, item);
-        long insertId = database.insert(MySQLiteHelper.TABLE_ITEM, null,
-                values);
+        values.put(MySQLiteHelper.COLUMN_STORE_ID, storeid);
+        long insertId = database.insert(MySQLiteHelper.TABLE_ITEM, null, values);
         Cursor cursor = database.query(MySQLiteHelper.TABLE_ITEM,
                 allColumns, MySQLiteHelper.COLUMN_ID + " = " + insertId, null,
                 null, null, null);
         cursor.moveToFirst();
-        Item newItem = cursorToStore(cursor);
+        Item newItem = cursorToItem(cursor);
         cursor.close();
         return newItem;
     }
 
-    public void deleteStore(Item item) {
+    public void deleteItem(Item item) {
         long id = item.getId();
         System.out.println("Item deleted with id: " + id);
         database.delete(MySQLiteHelper.TABLE_ITEM, MySQLiteHelper.COLUMN_ID
                 + " = " + id, null);
     }
 
-    /*public void updateStore(Item item) {
-        long id = store.getId();
+    public void updateItem(Item item) {
+        long id = item.getId();
         ContentValues args = new ContentValues();
-        args.put(MySQLiteHelper.COLUMN_STORE_NAME , store.getStoreName());
+        args.put(MySQLiteHelper.COLUMN_ITEM_NAME , item.getItemName());
 
-        database.update(MySQLiteHelper.TABLE_STORE, args,
+        database.update(MySQLiteHelper.TABLE_ITEM, args,
                  MySQLiteHelper.COLUMN_ID +"=" + id, null );
 
-    }*/
+    }
 
     public List<Item> getAllItems() {
         List<Item> items = new ArrayList<>();
@@ -72,7 +71,7 @@ public class ItemDataSource {
 
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            Item item = cursorToStore(cursor);
+            Item item = cursorToItem(cursor);
             items.add(item);
             cursor.moveToNext();
         }
@@ -81,7 +80,24 @@ public class ItemDataSource {
         return items;
     }
 
-    private Item cursorToStore(Cursor cursor) {
+    public List<Item> getAllItemsForStore(long storeId) {
+        List<Item> items = new ArrayList<>();
+
+        Cursor cursor = database.query(MySQLiteHelper.TABLE_ITEM,
+                allColumns, "store_id ="+ storeId, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Item item = cursorToItem(cursor);
+            items.add(item);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return items;
+    }
+
+    private Item cursorToItem(Cursor cursor) {
         Item item = new Item();
         item.setId(cursor.getLong(0));
         item.setItemName(cursor.getString(1));

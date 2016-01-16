@@ -6,6 +6,7 @@ package com.mohbajal.grocerylist.database.dao;
 public class Item {
 
     private long id;
+    private long storeId;
     private String itemName;
 
     public long getId() {
@@ -22,6 +23,14 @@ public class Item {
 
     public void setItemName(String itemName) {
         this.itemName = itemName;
+    }
+
+    public long getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(long storeId) {
+        this.storeId = storeId;
     }
 
     @Override
