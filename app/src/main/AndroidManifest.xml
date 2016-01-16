@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mohbajal.grocerylist">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -11,7 +9,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".GroceryListApplication">>
+       >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -22,12 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="com.parse.APPLICATION_ID"
-            android:value="uDzyGQwrmLawqgYhGUL7j03GB7YZ96Q6T2J1ivqI" />
-        <meta-data
-            android:name="com.parse.CLIENT_KEY"
-            android:value="qonRmp989oxP5oFsHZ2SYwBIrCR4Yqueyc8PqUaS" />
+
     </application>
 
 

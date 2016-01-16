@@ -1,5 +1,6 @@
 package com.mohbajal.grocerylist;
 
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,14 +17,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.parse.ParseException;
-import com.parse.ParseFile;
-import com.parse.ParseObject;
-import com.parse.ParseQueryAdapter;
-import com.parse.ParseUser;
-import com.parse.SaveCallback;
+import com.mohbajal.grocerylist.database.dao.Store;
+import com.mohbajal.grocerylist.database.model.StoreDataSource;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -36,9 +34,10 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.main_listname) EditText storeName;
     @Bind(R.id.main_list_view) ListView storesList;
 
-    ArrayList<String> listItems=new ArrayList<String>();
-    ArrayAdapter<String> adapter;
-    ParseQueryAdapter<ParseObject> mainAdapter;
+    List<Store> listItems;
+    ArrayAdapter<Store> adapter;
+
+    private StoreDataSource datasource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +46,17 @@ public class MainActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listItems);
+        datasource = new StoreDataSource(this);
+        datasource.open();
+
+        listItems = datasource.getAllStores();
+
+        adapter = new ArrayAdapter<Store>(this, android.R.layout.simple_list_item_1, listItems);
+
+        storesList.setAdapter(adapter);
 
 
-        mainAdapter = new ParseQueryAdapter<ParseObject>(this, "Store");
-        mainAdapter.setTextKey("StoreName");
-        storesList.setAdapter(mainAdapter);
+
     }
 
     @OnItemClick(R.id.main_list_view)
@@ -69,28 +73,30 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        listItems.add(newItem);
-        adapter.notifyDataSetChanged();
-        Toast.makeText(MainActivity.this, "Shopping List "+newItem + " added successfully!", Toast.LENGTH_SHORT).show();
         storeName.setText(""); //Clear the text
 
-        //Persist to Remote Database
-       ParseObject store = new ParseObject("Store");
-       store.put("StoreName", newItem);
+        ArrayAdapter<Store> adapter = (ArrayAdapter<Store>) storesList.getAdapter();
+        Store store = null;
 
-       store.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e == null) {
-                    //Success
-                    Toast.makeText(MainActivity.this, "Successfully saved", Toast.LENGTH_SHORT).show();
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        });
+        store = datasource.createStore(newItem);
+        adapter.add(store);
 
+        adapter.notifyDataSetChanged();
 
+        Toast.makeText(MainActivity.this, "Shopping List "+newItem + " added successfully!", Toast.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    protected void onResume() {
+        datasource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        datasource.close();
+        super.onPause();
     }
 
     //Utility Methods [Refactor]
