@@ -7,6 +7,7 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,6 +25,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemClick;
 
 /**
  * Created by 908752 on 1/16/16.
@@ -40,7 +42,7 @@ public class ItemsListActivity extends AppCompatActivity {
 
     long storeId;
 
-    String[] storeContextMenuItems = new String[] {"Delete", "Rename"};
+    String[] storeContextMenuItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,26 +52,29 @@ public class ItemsListActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
         datasource = new ItemDataSource(this);
         datasource.open();
 
         Intent intent = getIntent();
         storeId = intent.getLongExtra("key", 0);
 
-        listItems = datasource.getAllItemsForStore(storeId); //TODO
+        listItems = datasource.getAllItemsForStore(storeId);
 
         adapter = new ArrayAdapter<Item>(this, android.R.layout.simple_list_item_1, listItems);
 
         itemsList.setAdapter(adapter);
 
         registerForContextMenu(itemsList);
+        storeContextMenuItems = getResources().getStringArray(R.array.contextmenuoptions);
 
 
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        if (v.getId()==R.id.main_list_view) {
+        if (v.getId()==R.id.item_list_view) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
             menu.setHeaderTitle(listItems.get(info.position).getItemName());
 
@@ -86,7 +91,7 @@ public class ItemsListActivity extends AppCompatActivity {
         int menuItemIndex = item.getItemId();
 
         String menuItemName = storeContextMenuItems[menuItemIndex];
-        String listItemName = listItems.get(info.position).getItemName();
+        //String listItemName = listItems.get(info.position).getItemName();
 
         Item item1 = (Item) itemsList.getAdapter().getItem(info.position);
 
@@ -94,12 +99,12 @@ public class ItemsListActivity extends AppCompatActivity {
             datasource.deleteItem(item1);
 
             adapter.remove(item1);
-            Toast.makeText(ItemsListActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ItemsListActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
         } else if("Rename".equalsIgnoreCase(menuItemName)){
 
             datasource.updateItem(item1);
             adapter.notifyDataSetChanged();
-            Toast.makeText(ItemsListActivity.this, "listItemName is renamed", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ItemsListActivity.this, "listItemName is renamed", Toast.LENGTH_SHORT).show();
         }
         return true;
     }
@@ -123,8 +128,16 @@ public class ItemsListActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
-        Toast.makeText(ItemsListActivity.this, "Item "+newItem + " added successfully!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ItemsListActivity.this, "Item "+newItem + " added successfully!", Toast.LENGTH_SHORT).show();
     }
+
+    /*@OnItemClick(R.id.item_list_view)
+    public void mainListItemClicked(int position){
+        Item item = (Item) itemsList.getAdapter().getItem(position);
+
+
+
+    }*/
 
 
     //Utility Methods [Refactor]

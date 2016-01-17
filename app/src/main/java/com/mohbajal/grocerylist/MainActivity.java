@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,7 +35,8 @@ import butterknife.OnItemClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    @Bind(R.id.main_listname) EditText storeName;
+    @Bind(R.id.main_listname)
+    AutoCompleteTextView storeName;
     @Bind(R.id.main_list_view) ListView storesList;
 
     List<Store> listItems;
@@ -42,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private StoreDataSource datasource;
 
-    String[] storeContextMenuItems = new String[] {"Delete", "Rename"};
+    String[] storeContextMenuItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,14 @@ public class MainActivity extends AppCompatActivity {
 
         storesList.setAdapter(adapter);
 
+        //ArrayAdapter<String> myAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, item);
+
+        //storeName.setAdapter(adapter);
+
+
         registerForContextMenu(storesList);
+        storeContextMenuItems = getResources().getStringArray(R.array.contextmenuoptions);
+
 
     }
 
@@ -71,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         if (v.getId()==R.id.main_list_view) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
             menu.setHeaderTitle(listItems.get(info.position).getStoreName());
+
 
             for (int i = 0; i< storeContextMenuItems.length; i++) {
                 menu.add(Menu.NONE, i, i, storeContextMenuItems[i]);
@@ -93,13 +103,13 @@ public class MainActivity extends AppCompatActivity {
             datasource.deleteStore(store);
 
             adapter.remove(store);
-            Toast.makeText(MainActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "listItemName is deleted", Toast.LENGTH_SHORT).show();
         } else if("Rename".equalsIgnoreCase(menuItemName)){
             store.setStoreName("Updated");
             datasource.updateStore(store);
 
             adapter.notifyDataSetChanged();
-            Toast.makeText(MainActivity.this, "listItemName is renamed", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MainActivity.this, "listItemName is renamed", Toast.LENGTH_SHORT).show();
         }
         return true;
     }
@@ -133,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.notifyDataSetChanged();
 
-        Toast.makeText(MainActivity.this, "Shopping List "+newStore + " added successfully!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MainActivity.this, "Shopping List "+newStore + " added successfully!", Toast.LENGTH_SHORT).show();
 
     }
 

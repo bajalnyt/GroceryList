@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">GroceryList</string>
     <string name="action_settings">Settings</string>
+
+    <string-array name="contextmenuoptions">
+        <item>Delete</item>
+        <item>Rename</item>
+    </string-array>
 </resources>
